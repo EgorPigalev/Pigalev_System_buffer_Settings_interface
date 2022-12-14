@@ -7,6 +7,9 @@ int main()
 	char color = '0'; // Цвет шрифта
 	char colorBackground = '0'; // Цвет фона
 
+	
+
+
 	HKEY hKey = NULL;
 	if (RegOpenKeyW(HKEY_CURRENT_USER, NULL, &hKey) != ERROR_SUCCESS)
 	{
@@ -62,11 +65,27 @@ int main()
 		printf("5 - настройки по умолчанию\n");
 
 		int a = 0;
+
+
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		CONSOLE_FONT_INFOEX fontInfo;
+		fontInfo.cbSize = sizeof(fontInfo);
+
+		GetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+
+		wcscpy(fontInfo.FaceName, L"Times New Roman");
+
+		fontInfo.dwFontSize.Y = 28;
+		SetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+
+
+
 		scanf("%d", &a);
 		switch (a)
 		{
 		case(1):
-
+			// Изменение размера шрифта
+			
 			break;
 		case(2):
 			// Изменение цвета шрифта
@@ -105,7 +124,8 @@ int main()
 			system("cls");
 			break;
 		case(4):
-			
+			// Изменение типа шрифта
+
 			break;
 		case(5):
 			system("color 07");
