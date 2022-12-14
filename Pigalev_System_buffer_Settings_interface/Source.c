@@ -5,11 +5,7 @@
 int main()
 {
 	char color = '0'; // Цвет шрифта
-	char colorBackground = '0'; // Цвет фона
-
-	
-
-
+	char colorBackground = '0'; // Цвет фона	
 	HKEY hKey = NULL;
 	if (RegOpenKeyW(HKEY_CURRENT_USER, NULL, &hKey) != ERROR_SUCCESS)
 	{
@@ -30,7 +26,6 @@ int main()
 		if (RegGetValueW(hKey, L"MyKey", L"Color", RRF_RT_ANY, &DataType, StrValue, &Datalen) == ERROR_SUCCESS)
 		{
 			char* changeColor = calloc(100, 1);
-			//(color, StrValue[0]);
 			color = StrValue[0];
 			sprintf(changeColor, "color %c%c", colorBackground, color);
 			system(changeColor);
@@ -44,6 +39,30 @@ int main()
 			colorBackground = StrValue1[0];
 			sprintf(changeColor, "color %c%c", colorBackground, color);
 			system(changeColor);
+		}
+		LPDWORD DataType3 = NULL;
+		LPDWORD Datalen3 = 512;
+		LPWSTR StrValue3 = malloc(512);
+		if (RegGetValueW(hKey, L"MyKey", L"type", RRF_RT_ANY, &DataType3, StrValue3, &Datalen3) == ERROR_SUCCESS)
+		{
+			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			CONSOLE_FONT_INFOEX fontInfo;
+			fontInfo.cbSize = sizeof(fontInfo);
+			GetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+			wcscpy(fontInfo.FaceName, StrValue3);
+			SetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+		}
+		LPDWORD DataType2 = 0;
+		LPDWORD Datalen2 = 512;
+		DWORD DwordValue = 0;
+		if (RegGetValueW(hKey, L"MyKey", L"razmer", RRF_RT_ANY, &DataType2, &DwordValue, &Datalen2) == ERROR_SUCCESS)
+		{
+			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			CONSOLE_FONT_INFOEX fontInfo;
+			fontInfo.cbSize = sizeof(fontInfo);
+			GetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+			fontInfo.dwFontSize.Y = DwordValue;
+			SetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
 		}
 	}
 	else
@@ -65,30 +84,28 @@ int main()
 		printf("5 - настройки по умолчанию\n");
 
 		int a = 0;
-
-
-		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-		CONSOLE_FONT_INFOEX fontInfo;
-		fontInfo.cbSize = sizeof(fontInfo);
-
-		GetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
-
-		wcscpy(fontInfo.FaceName, L"Times New Roman");
-
-		fontInfo.dwFontSize.Y = 28;
-		SetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
-
-
-
 		scanf("%d", &a);
-		switch (a)
+
+		if (a == 1) // Изменение размера шрифта
 		{
-		case(1):
-			// Изменение размера шрифта
-			
-			break;
-		case(2):
-			// Изменение цвета шрифта
+			system("cls");
+			int razm;
+			printf("Введите размер шрифта: ");
+			scanf_s("%d", &razm);
+			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			CONSOLE_FONT_INFOEX fontInfo;
+			fontInfo.cbSize = sizeof(fontInfo);
+			GetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+			fontInfo.dwFontSize.Y = razm;
+			SetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+			if (RegSetValueExA(tmp, "razmer", NULL, REG_DWORD, &razm, 4) != ERROR_SUCCESS)
+			{
+				MessageBoxA(NULL, "При записи размера шрифта в реестр возникла ошибка", "Информация", MB_OK);
+			}
+			system("cls");
+		}
+		else if (a == 2) // Изменение цвета шрифта
+		{
 			system("cls");
 			printf("0 - Черный\n1 - Синий\n2 - Зеленый\n3 - Аквамарин\n4 - Красный\n5 - Сиреневый\n6 - Желтый\n7 - Белый\n8 - Серый\n9 - Светло - синий\nA - светло - зеленый\nB - Светло - голубой\nC - Светло - красный\nD - Светло - фиолетовый\nE - Светло - желтый\nF - Светлое белое\n");
 			printf("Введите символ для смена цвета шрифта: ");
@@ -104,9 +121,9 @@ int main()
 				MessageBoxA(NULL, "При записи цвета шрифта в реестр возникла ошибка", "Информация", MB_OK);
 			}
 			system("cls");
-			break;
-		case(3):
-			// Изменение цвета фона
+		}
+		else if (a == 3) // Изменение цвета фона
+		{
 			system("cls");
 			printf("0 - Черный\n1 - Синий\n2 - Зеленый\n3 - Аквамарин\n4 - Красный\n5 - Сиреневый\n6 - Желтый\n7 - Белый\n8 - Серый\n9 - Светло - синий\nA - светло - зеленый\nB - Светло - голубой\nC - Светло - красный\nD - Светло - фиолетовый\nE - Светло - желтый\nF - Светлое белое\n");
 			printf("Введите символ для смена цвета фона: ");
@@ -122,13 +139,55 @@ int main()
 				MessageBoxA(NULL, "При записи цвета фона в реестр возникла ошибка", "Информация", MB_OK);
 			}
 			system("cls");
-			break;
-		case(4):
-			// Изменение типа шрифта
-
-			break;
-		case(5):
+		}
+		else if (a == 4) // Изменение типа шрифта
+		{
+			system("cls");
+			scanf_s(" ");
+			printf("Ввидите тип шрифта: ");
+			char* strType = calloc(200, 1);
+			gets(strType);
+			if (RegSetValueExA(tmp, "type", NULL, REG_SZ, strType, strlen(strType) * sizeof(WCHAR)) != ERROR_SUCCESS)
+			{
+				MessageBoxA(NULL, "При записи типа шрифта в реестр возникла ошибка", "Информация", MB_OK);
+			}
+			LPDWORD DataType5 = NULL;
+			LPDWORD Datalen5 = 512;
+			LPWSTR StrValue5 = malloc(512);
+			if (RegGetValueW(hKey, L"MyKey", L"type", RRF_RT_ANY, &DataType5, StrValue5, &Datalen5) == ERROR_SUCCESS)
+			{
+				HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+				CONSOLE_FONT_INFOEX fontInfo;
+				fontInfo.cbSize = sizeof(fontInfo);
+				GetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+				wcscpy(fontInfo.FaceName, StrValue5);
+				SetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+			}
+			LPDWORD DataType2 = 0;
+			LPDWORD Datalen2 = 512;
+			DWORD DwordValue = 0;
+			if (RegGetValueW(hKey, L"MyKey", L"razmer", RRF_RT_ANY, &DataType2, &DwordValue, &Datalen2) == ERROR_SUCCESS)
+			{
+				HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+				CONSOLE_FONT_INFOEX fontInfo;
+				fontInfo.cbSize = sizeof(fontInfo);
+				GetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+				fontInfo.dwFontSize.Y = DwordValue;
+				SetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+			}
+			system("cls");
+		}
+		else if (a == 5) // Стандартные настройки
+		{
+			DWORD razmer = 16;
 			system("color 07");
+			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			CONSOLE_FONT_INFOEX fontInfo;
+			fontInfo.cbSize = sizeof(fontInfo);
+			GetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
+			wcscpy(fontInfo.FaceName, L"Consolas");
+			fontInfo.dwFontSize.Y = 16;
+			SetCurrentConsoleFontEx(hConsole, TRUE, &fontInfo);
 			system("cls");
 			if (RegSetValueExA(tmp, "Color", NULL, REG_SZ, "7", 1 * sizeof(WCHAR)) != ERROR_SUCCESS)
 			{
@@ -138,9 +197,17 @@ int main()
 			{
 				MessageBoxA(NULL, "При записи цвета фона в реестр возникла ошибка", "Информация", MB_OK);
 			}
-			break;
-		default:
-			return 0;
+			if (RegSetValueExA(tmp, "razmer", NULL, REG_DWORD, &razmer, 4) != ERROR_SUCCESS)
+			{
+				MessageBoxA(NULL, "При записи размера шрифта в реестр возникла ошибка", "Информация", MB_OK);
+			}
+			if (RegSetValueExA(tmp, "type", NULL, REG_SZ, "Consolas", 9 * sizeof(WCHAR)) != ERROR_SUCCESS)
+			{
+				MessageBoxA(NULL, "При записи типа шрифта в реестр возникла ошибка", "Информация", MB_OK);
+			}
+		}
+		else
+		{
 			break;
 		}
 	}
